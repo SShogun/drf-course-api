@@ -3,7 +3,7 @@ from api.serializers import *
 from api.models import *
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-
+from django.db.models import *
 
 @api_view(['GET'])  #converts django view to DRF view
 def product_list(request):
@@ -22,3 +22,13 @@ def order_list(request):
     orders = Order.objects.all()
     serializer = OrderSerializer(orders, many=True) #since it an array of objects we use many=True
     return Response(serializer.data) 
+
+@api_view(['GET'])
+def product_info(request):
+    products = Product.objects.all()
+    serailizer = ProductInfoSerializer({
+        'products': products,
+        'count': products.count(),
+        'max_price': products.aggregate(max_price = (Max('price')))['max_price'] 
+    })
+    return Response(serailizer.data)
